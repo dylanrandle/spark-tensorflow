@@ -6,12 +6,13 @@ KEY STEPS FOR SET UP:
 
 Machine setup:
 
-— python 3.6
-— tensorflow-cpu 
-— keras
-— elephas
-— tensorflow-spark connector
+* python 3.6
+* tensorflow-cpu 
+* keras
+* elephas
+* tensorflow-spark connector
 
 Cluster:
-— spark + hadoop
-— s3 mounted on hadoop
+
+* spark + hadoop
+* s3 mounted on hadoop
