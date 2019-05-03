@@ -26,18 +26,28 @@ spark = pyspark.sql.SparkSession(sc)
 # which allows us to read the tfrecord files into a Spark
 # DataFrame.
 
-path = lambda m: "yt8pm_100th_shard/v2/video/{}*.tfrecord".format(m)
-train_df = spark.read.format("tfrecords").option("recordType", "Example").load(path('train'))
-val_df = spark.read.format("tfrecords").option("recordType", "Example").load(path('validate'))
-train_df = spark.read.format("tfrecords").option("recordType", "Example").load(path('test'))
+top_dir = "yt8pm_100th_shard/v2"
+data_path = lambda level, set_name: "{}/{}/{}*.tfrecord".format(top_dir, level, set_name)
+
+# VIDEO-LEVEL
+vid_train_df = spark.read.format("tfrecords").option("recordType", "Example").load(data_path('video','train'))
+vid_val_df = spark.read.format("tfrecords").option("recordType", "Example").load(data_path('video','validate'))
+vid_test_df = spark.read.format("tfrecords").option("recordType", "Example").load(data_path('video','test'))
+
+# FRAME-LEVEL
+frame_train_df = spark.read.format("tfrecords").option("recordType", "Example").load(data_path('frame','train'))
+frame_val_df = spark.read.format("tfrecords").option("recordType", "Example").load(data_path('frame','validate'))
+frame_test_df = spark.read.format("tfrecords").option("recordType", "Example").load(data_path('frame','test'))
 
 # ==============
 # PREPROCESSING
 # ==============
 
+## TODO: make this use all the data. just using the vid-level train df for testing
+
 # 1) take audio and rgb features
 # 2) use only top 20 classes
-train_df = train_df.select('mean_rgb', 'labels')
+train_df = vid_train_df.select('mean_rgb', 'labels')
 train_rdd = train_df.rdd
 train_rdd = train_rdd.map(lambda x: (x[0], x[1]))
 def convert_labels(labels):
