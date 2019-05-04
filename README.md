@@ -1,5 +1,5 @@
 # cs205_spring19_final_project
-Final project for CS205 - understanding historical urban growth - last 40 years in Miami, FL.
+Final project for CS205 - Youtube video classification at scale using distributed computing and bi-LSTM
 
 
 KEY STEPS FOR SET UP:
