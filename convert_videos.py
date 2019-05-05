@@ -286,35 +286,38 @@ def convert_data(train_frame_shards):
     
     for tf_record in tqdm(train_frame_shards[:NUM_RECORDS_TO_LOAD]):
         # pull frames in memory
-        train_frame_ids, train_frame_labels,train_frame_rgb,train_frame_audio \
-            = extract_frame_level_features_per_tf_record(tf_record,maximum_iter=False,\
-                                   stop_at_iter=5) # just pull 10 videos from each tf record for debugging
-        # first transformation
-        train_video_rgb, train_video_audio, train_frame_rgb, train_frame_audio, \
-        train_labels, val_video_rgb, val_video_audio, val_frame_rgb, val_frame_audio, val_labels \
-                    = create_train_dev_dataset(train_mean_rgb, train_mean_audio, train_vid_ids, train_frame_rgb, \
-                                                train_frame_audio, train_frame_labels, train_frame_ids )    
+        try:
+            train_frame_ids, train_frame_labels,train_frame_rgb,train_frame_audio \
+                = extract_frame_level_features_per_tf_record(tf_record,maximum_iter=False,\
+                                       stop_at_iter=5) # just pull 10 videos from each tf record for debugging
+            # first transformation
+            train_video_rgb, train_video_audio, train_frame_rgb, train_frame_audio, \
+            train_labels, val_video_rgb, val_video_audio, val_frame_rgb, val_frame_audio, val_labels \
+                        = create_train_dev_dataset(train_mean_rgb, train_mean_audio, train_vid_ids, train_frame_rgb, \
+                                                    train_frame_audio, train_frame_labels, train_frame_ids )    
 
-        # final transformation for LSTM
-        train_frame_rgb, train_frame_audio, train_video_rgb, train_video_audio, train_labels = \
-                transform_data_for_lstm(train_video_rgb, train_video_audio, train_frame_rgb, train_frame_audio,train_labels)
+            # final transformation for LSTM
+            train_frame_rgb, train_frame_audio, train_video_rgb, train_video_audio, train_labels = \
+                    transform_data_for_lstm(train_video_rgb, train_video_audio, train_frame_rgb, train_frame_audio,train_labels)
 
-        val_frame_rgb, val_frame_audio, val_video_rgb, val_video_audio, val_labels = \
-                transform_data_for_lstm( val_video_rgb, val_video_audio,val_frame_rgb, val_frame_audio, val_labels)
+            val_frame_rgb, val_frame_audio, val_video_rgb, val_video_audio, val_labels = \
+                    transform_data_for_lstm( val_video_rgb, val_video_audio,val_frame_rgb, val_frame_audio, val_labels)
 
-        #### BELOW WE ONLY USE THE TRAINING DATA AND NO VALIDATION DATA FOR SIMPLICITY
-        df = create_pandas(train_frame_rgb, train_frame_audio, \
-                       train_video_rgb, train_video_audio, train_labels)
-        # create spark data frame
+            #### BELOW WE ONLY USE THE TRAINING DATA AND NO VALIDATION DATA FOR SIMPLICITY
+            df = create_pandas(train_frame_rgb, train_frame_audio, \
+                           train_video_rgb, train_video_audio, train_labels)
+            # create spark data frame
 
-        df_spark = spark.createDataFrame(df)        
-    
-        path = f"{str(tf_record.split('/')[-1])}-converted.tfrecord"
-        df_spark.write.format("tfrecords").option("recordType", "SequenceExample").save(path)
-        del df_spark
-        gc.collect()
-        #print(path)
-        os.system(f'sudo mv {path} mys3bucket/converted_records_for_spark/')
+            df_spark = spark.createDataFrame(df)        
+
+            path = f"{str(tf_record.split('/')[-1])}-converted.tfrecord"
+            df_spark.write.format("tfrecords").option("recordType", "SequenceExample").save(path)
+            del df_spark
+            gc.collect()
+            #print(path)
+            os.system(f'sudo mv {path} mys3bucket/converted_records_for_spark/')
+        except:
+            continue # skip a tf record if something goes wrong
 
 if __name__ == '__main__':
 
@@ -327,6 +330,10 @@ if __name__ == '__main__':
     train_vid_ids, train_labels, train_mean_rgb, train_mean_audio \
         = extract_video_files("mys3bucket/yt8pm_100th_shard/v2/video/train*")    
     # the fun starts here, pull frame data per tf-record
-    train_frame_shards = glob('mys3bucket/yt8pm_100th_shard/v2/frame/train*')   
-    convert_data(train_frame_shards) 
+    train_frame_shards = glob('mys3bucket/yt8pm_100th_shard/v2/frame/train*')
+    train_frame_shards.remove('mys3bucket/yt8pm_100th_shard/v2/frame/train0093.tfrecord')
+    train_frame_shards.remove('mys3bucket/yt8pm_100th_shard/v2/frame/train0111.tfrecord')
+    train_frame_shards.remove('mys3bucket/yt8pm_100th_shard/v2/frame/train0208.tfrecord')
+    print(train_frame_shards)
+    convert_data(train_frame_shards[1:]) 
 
