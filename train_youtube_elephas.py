@@ -3,7 +3,7 @@ from pyspark.sql.types import *
 import pyspark
 import numpy as np
 from elephas.spark_model import SparkModel
-from create_and_train_biLSTM_Youtube import create_model
+from create_youtube_model import create_model
 
 # ============
 # SPARK SETUP
@@ -26,33 +26,22 @@ spark = pyspark.sql.SparkSession(sc)
 # which allows us to read the tfrecord files into a Spark
 # DataFrame.
 
-top_dir = "yt8pm_100th_shard/v2"
-data_path = lambda level, set_name: "{}/{}/{}*.tfrecord".format(top_dir, level, set_name)
-
 # VIDEO-LEVEL
-vid_train_df = spark.read.format("tfrecords").option("recordType", "Example").load(data_path('video','train'))
-vid_val_df = spark.read.format("tfrecords").option("recordType", "Example").load(data_path('video','validate'))
-vid_test_df = spark.read.format("tfrecords").option("recordType", "Example").load(data_path('video','test'))
-
-# FRAME-LEVEL
-frame_train_df = spark.read.format("tfrecords").option("recordType", "Example").load(data_path('frame','train'))
-frame_val_df = spark.read.format("tfrecords").option("recordType", "Example").load(data_path('frame','validate'))
-frame_test_df = spark.read.format("tfrecords").option("recordType", "Example").load(data_path('frame','test'))
+vid_train_df = spark.read.format("tfrecords").option("recordType", "Example").load('s3://cs205-youtube-data/yt8pm/v2/video/train*.tfrecord')
+# vid_test_df = spark.read.format("tfrecords").option("recordType", "Example").load('s3://cs205-youtube-data/yt8pm/v2/video/test*.tfrecord')
 
 # ==============
 # PREPROCESSING
 # ==============
 
-## TODO: make this use all the data. just using the vid-level train df for testing
-
-# 1) take audio and rgb features
-# 2) use only top 20 classes
+# 1) take mean_rgb features
+# 2) take top 10 classes
 train_df = vid_train_df.select('mean_rgb', 'labels')
 train_rdd = train_df.rdd
 train_rdd = train_rdd.map(lambda x: (x[0], x[1]))
 def convert_labels(labels):
-    allowed=np.arange(20)
-    one_hot=np.zeros(20)
+    allowed=np.arange(10)
+    one_hot=np.zeros(10)
     for l in labels:
         if l in allowed:
             one_hot[l]=1
@@ -65,7 +54,7 @@ train_rdd = train_rdd.map(lambda x: (np.array(x[0]), convert_labels(x[1])))
 
 keras_model = create_model()
 spark_model = SparkModel(keras_model, frequency='batch', mode='synchronous')
-history = spark_model.fit(train_rdd, epochs=10, batch_size=32, verbose=0)
+history = spark_model.fit(train_rdd, epochs=1, batch_size=32, verbose=2)
 
 # =========
 # TESTING
