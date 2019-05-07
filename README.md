@@ -33,6 +33,7 @@ Please find the YouTube-8M dataset [here](https://research.google.com/youtube8m/
 
 ### Setting up the Cluster:
 
+- `ssh` into the master node
 - You may need to install Git with `yum install git`
 - Follow the directions in the notebook: `Tensorflow-spark-connector.ipynb` to install the Tensorflow-Spark connector
   - In essence this involves a) installing Apache Maven and b) using it to install Tensorflow-Spark connector
