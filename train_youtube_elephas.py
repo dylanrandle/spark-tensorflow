@@ -23,7 +23,7 @@ spark = pyspark.sql.SparkSession(sc)
 # which allows us to read the tfrecord files into a Spark
 # DataFrame.
 vid_train_df = spark.read.format("tfrecords").option("recordType", "Example").load('s3://cs205-youtube-data/yt8pm/v2/video/train*.tfrecord')
-vid_test_df = spark.read.format("tfrecords").option("recordType", "Example").load('s3://cs205-youtube-data/yt8pm/v2/video/validate*.tfrecord')
+vid_test_df = spark.read.format("tfrecords").option("recordType", "Example").load('s3://cs205-youtube-data/yt8pm/v2/video/validate01*.tfrecord')
 
 # ==============
 # PREPROCESSING
@@ -50,8 +50,8 @@ test_rdd = test_rdd.map(lambda x: (np.array(x[0]), convert_labels(x[1])))
 # TRAINING
 # =========
 keras_model = create_model()
-spark_model = SparkModel(keras_model, frequency='batch', mode='asynchronous')
-history = spark_model.fit(train_rdd, epochs=1, batch_size=32, verbose=2)
+spark_model = SparkModel(keras_model, frequency='epoch', mode='asynchronous')
+history = spark_model.fit(train_rdd, epochs=10, batch_size=32, verbose=2)
 
 # =========
 # TESTING
