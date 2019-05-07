@@ -51,7 +51,7 @@ Watch as Spark distributes the dataset and performs model training!
 
 ### Memory Issues
 
-We had to tune the maximum memory allotted to the various processes. If you run into any trouble with memory, consider adjusting the flags `--driver-memory` to change the maximum memory available to the driver script, `--executor-memory` for the executors, and `--`
+We had to tune the maximum memory allotted to the various processes. If you run into any trouble with memory, consider adjusting the flags `--driver-memory` to change the maximum memory available to the driver script, `--executor-memory` for the executors, and finally `--conf spark.driver.maxResultSize=SIZE` where `SIZE` is the maximum expected serialized result your `model.train` method returns.
 
 ### Monitoring
 
