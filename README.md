@@ -60,9 +60,3 @@ To easily monitor the Spark application, including tracking the runtime of each 
 where `MASTER-DNS` is the DNS found on the EMR cluster page.
 
 In our experiments, we set `--num-executors` to the number of nodes in the cluster and `--executor-cores` to the number of vCPUs per node.
-
-## Discussion
-
-Upon analysis of the scaling results as well as further study of the CPU utilization of the worker nodes through `top`, we see that the python processes that are running the model training do not seem to be effectively utilizing the available resources. The python processes use only ~50% of the available 400% (100%x4) CPU on the `m4.xlarge`. This likely explains why our scaling is far from ideal.
-
-Additionally, it appears that communication is playing a vital role in limiting the speedup. For example, when running on a cluster of 4 nodes and 8 nodes, the former executes at ~25 seconds/task while the latter is around ~50 seconds/task. Since the number of nodes doubles, the communication also doubles (within a constant factor), and clearly hurts performance.
