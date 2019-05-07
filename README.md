@@ -59,3 +59,4 @@ To easily monitor the Spark application, including tracking the runtime of each 
 `ssh -i /path/to/key -4 -L 3000:MASTER-DNS:4040 hadoop@MASTER-DNS`
 where `MASTER-DNS` is the DNS found on the EMR cluster page.
 
+In our experiments, we set `--num-executors` to the number of nodes in the cluster.
