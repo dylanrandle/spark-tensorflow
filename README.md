@@ -18,7 +18,7 @@ Please find the YouTube-8M dataset [here](https://research.google.com/youtube8m/
 - Install Python 3.6 with `yum install python36`
 - Install a large collection of dependencies with `python3 -m pip install elephas`
 - **Critical:** Uninstall the `pyspark` package installed by the previous command with `python3 -m pip uninstall pyspark`
-- Go to the AWS console, selection this instance, and create an image by selection Action > Image > Create Image
+- Go to the AWS console, select this instance, and create an image by selecting Action > Image > Create Image
 
 ### Launching the EMR Cluster with an AMI:
 
@@ -29,7 +29,7 @@ Please find the YouTube-8M dataset [here](https://research.google.com/youtube8m/
   - Ganglia 3.7.2
   - Zeppelin 0.8.1
 - Size the cluster as your wish, but ensure the Master's EBS Root Volume is >= the AMI's EBS Root Volume (created above)
-- On the last page, under images, select the previously created machine learning
+- On the last page, under images, select the previously created machine image
 
 ### Setting up the Cluster:
 
