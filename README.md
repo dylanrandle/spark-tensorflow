@@ -47,3 +47,14 @@ export PYSPARK_PYTHON=/usr/bin/python3
 - Submit the Spark job with: `spark-submit --jars ecosystem/spark/spark-tensorflow-connector/target/spark-tensorflow-connector_2.11-1.10.0.jar train_youtube_elephas.py`
 
 Watch as Spark distributes the dataset and performs model training!
+
+### Memory Issues
+
+We had to tune the maximum memory allotted to the various processes. If you run into any trouble with memory, consider adjusting the flags `--driver-memory` to change the maximum memory available to the driver script, `--executor-memory` for the executors, and `--`
+
+### Monitoring
+
+To easily monitor the Spark application, including tracking the runtime of each Job, enable port forwarding with:
+`ssh -i /path/to/key -4 -L 3000:MASTER-DNS:4040 hadoop@MASTER-DNS`
+where `MASTER-DNS` is the DNS found on the EMR cluster page.
+
